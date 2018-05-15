@@ -6,16 +6,14 @@ var url = require('url')
 var boom = require('boom')
 var Pool = require('poolee')
 
-exports.register = function (server, options, next) {
-  server.auth.scheme('fxa-oauth', oauth)
-  if (options) {
-    server.auth.strategy('fxa-oauth', 'fxa-oauth', options)
+exports.plugin = {
+  pkg: require('./package.json'),
+  register: function (server, options) {
+    server.auth.scheme('fxa-oauth', oauth)
+    if (options) {
+      server.auth.strategy('fxa-oauth', 'fxa-oauth', options)
+    }
   }
-  return next()
-}
-
-exports.register.attributes = {
-  pkg: require('./package.json')
 }
 
 function oauth(server, options) {
