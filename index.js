@@ -59,12 +59,12 @@ function oauth(server, options) {
   var extra = options.extra || {}
 
   return {
-    authenticate: function (request, reply) {
+    authenticate: function (request, h) {
       var auth = request.headers.authorization
       if (!auth || auth.indexOf('Bearer') !== 0) {
         // This is the necessary incantation to tell hapi to try
         // the next auth stragegy in the series, if any.
-        return reply(boom.unauthorized(null, 'fxa-oauth'))
+        return boom.unauthorized(null, 'fxa-oauth')
       }
       var token = auth.split(' ')[1]
       var data = { token: token }
@@ -81,17 +81,17 @@ function oauth(server, options) {
         },
         function(err, resp, body) {
           if (err) {
-            return reply(boom.serverUnavailable(err.message))
+            return boom.serverUnavailable(err.message)
           }
           try {
             var json = JSON.parse(body)
             if (json.code >= 400) {
-              return reply(boom.unauthorized(json.message))
+              return boom.unauthorized(json.message)
             }
-            reply.continue({ credentials: json })
+            return h.continue({ credentials: json })
           }
           catch (e) {
-            return reply(boom.serverUnavailable(e.message))
+            return boom.serverUnavailable(e.message)
           }
         }
       )
