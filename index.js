@@ -72,7 +72,7 @@ function oauth(server, options) {
         data[key] = extra[key]
       }
 
-      pool.request(
+      return pool.request(
         {
           method: 'POST',
           path: options.path + '/v1/verify',
