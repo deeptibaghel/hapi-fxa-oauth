@@ -83,19 +83,20 @@ function oauth(server, options) {
             },
             function(err, resp, body) {
               if (err) {
-                throw boom.serverUnavailable(err.message)
+                return reject(boom.serverUnavailable(err.message))
               }
+
               try {
                 var json = JSON.parse(body)
-                if (json.code >= 400) {
-                  throw boom.unauthorized(json.message)
-                }
+              } catch (err) {
+                return reject(boom.serverUnavailable(err.message))
+              }
 
-                resolve(json)
+              if (json.code >= 400) {
+                return reject(boom.unauthorized(json.message))
               }
-              catch (e) {
-                reject(boom.serverUnavailable(e.message))
-              }
+
+              return resolve(json)
             }
           )
         })
@@ -106,7 +107,7 @@ function oauth(server, options) {
         return h.authenticated({credentials: json})
       })
         .catch((err) => {
-          throw err
+          return h.unauthenticated(err)
         })
     }
   }
